@@ -23,21 +23,34 @@ class LoggingTestClient
             using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8))
             using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
             {
-                // Manually input log messages
-                while (true)
-                {
-                    Console.Write("Enter log message (or 'exit' to quit): ");
-                    string userInput = Console.ReadLine();
-
-                    if (userInput.ToLower() == "exit")
-                        break;
-
-                    LogMessage(writer, LogLevel.Info, userInput);
-                }
+                // Generate sample log messages
+                GenerateSampleLogMessages(writer);
 
                 // Receive acknowledgment from the server
                 string acknowledgment = reader.ReadLine();
                 Console.WriteLine("Server Acknowledgment: " + acknowledgment);
+                while (true)
+                {
+                    // Receive acknowledgment for the custom log message
+                    acknowledgment = reader.ReadLine();
+                    Console.WriteLine("Server Acknowledgment: " + acknowledgment);
+
+                    // Break the loop if the server signals that it's ready for the next log message
+                    if (acknowledgment.ToLower() == "ready for next log message. type 'exit' to stop entering.")
+                    {
+                        Console.WriteLine("Do you want to enter another custom log message? (y/n): ");
+                        string response = Console.ReadLine();
+
+                        if (response.ToLower() == "n" || response.ToLower() == "exit")
+                            break;
+
+                        Console.WriteLine("Enter your log message:");
+                        string customLogMessage = Console.ReadLine();
+
+                        LogMessage(writer, LogLevel.Custom, customLogMessage);
+                    }
+                }
+
             }
         }
         catch (Exception ex)
@@ -62,16 +75,14 @@ class LoggingTestClient
 
         LogMessage(writer, LogLevel.Custom, "Custom log message: This is a custom event.");
 
-
         LogMessage(writer, LogLevel.Error, "Failed to connect to external service.");
         LogMessage(writer, LogLevel.Info, "Processing completed successfully.");
         LogMessage(writer, LogLevel.Warning, "Unusual activity detected. Monitor closely.");
-
- 
     }
 
     private static void LogMessage(StreamWriter writer, LogLevel level, string message)
     {
+        string timestamp = DateTime.Now.ToString("yyyy-MM-dd h:mm:ss tt");
         string logMessage = $"[{level}] {DateTime.Now}: {message}";
         SendLogMessage(writer, logMessage);
     }
