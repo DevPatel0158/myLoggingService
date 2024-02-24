@@ -23,8 +23,17 @@ class LoggingTestClient
             using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8))
             using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
             {
-                // Generate sample log messages
-                GenerateSampleLogMessages(writer);
+                // Manually input log messages
+                while (true)
+                {
+                    Console.Write("Enter log message (or 'exit' to quit): ");
+                    string userInput = Console.ReadLine();
+
+                    if (userInput.ToLower() == "exit")
+                        break;
+
+                    LogMessage(writer, LogLevel.Info, userInput);
+                }
 
                 // Receive acknowledgment from the server
                 string acknowledgment = reader.ReadLine();
@@ -53,12 +62,12 @@ class LoggingTestClient
 
         LogMessage(writer, LogLevel.Custom, "Custom log message: This is a custom event.");
 
-        // Additional examples
+
         LogMessage(writer, LogLevel.Error, "Failed to connect to external service.");
         LogMessage(writer, LogLevel.Info, "Processing completed successfully.");
         LogMessage(writer, LogLevel.Warning, "Unusual activity detected. Monitor closely.");
 
-        // More examples...
+ 
     }
 
     private static void LogMessage(StreamWriter writer, LogLevel level, string message)
